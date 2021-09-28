@@ -43,4 +43,5 @@ This custom resolver implements a `Dial` function that can be used to override t
 	}
 ```
 
-There is a full example in [example_test.go]
+
+Check [example_test.go](./example_test.go) for a full example.

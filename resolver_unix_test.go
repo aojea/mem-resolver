@@ -1,3 +1,6 @@
+//go:build aix || darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris
+// +build aix darwin dragonfly freebsd linux netbsd openbsd solaris
+
 package resolver
 
 // https://github.com/golang/go/blob/master/src/net/lookup_test.go

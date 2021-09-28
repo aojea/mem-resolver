@@ -1,5 +1,5 @@
-github.com/aojea/hairpin v0.1.0 h1:VUHngJiBjfmWoQZKsSsHB1RQxkAVQlhqJ+l5cqJdF2I=
-github.com/aojea/hairpin v0.1.0/go.mod h1:WDB9ltu4p4aHqWYuiBR4Gb2NMWU0RMezyIiuvKtk5jA=
+github.com/aojea/hairpin v0.2.0 h1:NbQMyqH8zWKBJjm6IOcFC/v4l+8JqkeRKtx2UG0iBtE=
+github.com/aojea/hairpin v0.2.0/go.mod h1:WDB9ltu4p4aHqWYuiBR4Gb2NMWU0RMezyIiuvKtk5jA=
 golang.org/x/net v0.0.0-20210928044308-7d9f5e0b762b h1:eB48h3HiRycXNy8E0Gf5e0hv7YT6Kt14L/D73G1fuwo=
 golang.org/x/net v0.0.0-20210928044308-7d9f5e0b762b/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

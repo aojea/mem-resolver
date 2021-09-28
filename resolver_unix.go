@@ -57,7 +57,7 @@ func (r *MemResolver) dnsStreamRoundTrip(b []byte) []byte {
 		return dnsErrorMessage(hdr.ID, dnsmessage.RCodeFormatError, dnsmessage.Question{})
 	}
 
-	b = r.ProcessDNSRequest(hdr.ID, questions[0])
+	b = r.processDNSRequest(hdr.ID, questions[0])
 	hdrLen := make([]byte, 2)
 	binary.BigEndian.PutUint16(hdrLen, uint16(len(b)))
 	return append(hdrLen, b...)
@@ -89,7 +89,7 @@ func (r *MemResolver) dnsPacketRoundTrip(b []byte) []byte {
 		return dnsErrorMessage(hdr.ID, dnsmessage.RCodeFormatError, dnsmessage.Question{})
 	}
 
-	answer := r.ProcessDNSRequest(hdr.ID, questions[0])
+	answer := r.processDNSRequest(hdr.ID, questions[0])
 	// Return a truncated packet if the answer is too big
 	if len(answer) > 512 {
 		answer = dnsTruncatedMessage(hdr.ID, questions[0])
@@ -98,9 +98,44 @@ func (r *MemResolver) dnsPacketRoundTrip(b []byte) []byte {
 	return answer
 }
 
-// ProcessDNSRequest implements dnsHandlerFunc so it can be used in a MemResolver
+// dnsErrorMessage return an encoded dns error message
+func dnsErrorMessage(id uint16, rcode dnsmessage.RCode, q dnsmessage.Question) []byte {
+	msg := dnsmessage.Message{
+		Header: dnsmessage.Header{
+			ID:            id,
+			Response:      true,
+			Authoritative: true,
+			RCode:         rcode,
+		},
+		Questions: []dnsmessage.Question{q},
+	}
+	buf, err := msg.Pack()
+	if err != nil {
+		panic(err)
+	}
+	return buf
+}
+
+func dnsTruncatedMessage(id uint16, q dnsmessage.Question) []byte {
+	msg := dnsmessage.Message{
+		Header: dnsmessage.Header{
+			ID:            id,
+			Response:      true,
+			Authoritative: true,
+			Truncated:     true,
+		},
+		Questions: []dnsmessage.Question{q},
+	}
+	buf, err := msg.Pack()
+	if err != nil {
+		panic(err)
+	}
+	return buf
+}
+
+// processDNSRequest implements dnsHandlerFunc so it can be used in a MemResolver
 // transforming a DNS request to the corresponding Golang Lookup functions.
-func (r *MemResolver) ProcessDNSRequest(id uint16, q dnsmessage.Question) []byte {
+func (r *MemResolver) processDNSRequest(id uint16, q dnsmessage.Question) []byte {
 	// DNS packet length is encoded in 2 bytes
 	buf := []byte{}
 	answer := dnsmessage.NewBuilder(buf,
@@ -378,7 +413,8 @@ func (r *MemResolver) lookupTXT(ctx context.Context, name string) ([]string, err
 	return net.DefaultResolver.LookupTXT(ctx, name)
 }
 
-// Dial creates an in memory connection
+// Dial creates an in memory connection to the in-memory resolver.
+// Used to create a custom net.Resolver
 func (r *MemResolver) Dial(ctx context.Context, network, address string) (net.Conn, error) {
 	if strings.Contains(network, "tcp") {
 		h := hairpin.HairpinDialer{
@@ -402,39 +438,4 @@ func NewMemoryResolver(r *MemResolver) *net.Resolver {
 		PreferGo: true,
 		Dial:     r.Dial,
 	}
-}
-
-// dnsErrorMessage return an encoded dns error message
-func dnsErrorMessage(id uint16, rcode dnsmessage.RCode, q dnsmessage.Question) []byte {
-	msg := dnsmessage.Message{
-		Header: dnsmessage.Header{
-			ID:            id,
-			Response:      true,
-			Authoritative: true,
-			RCode:         rcode,
-		},
-		Questions: []dnsmessage.Question{q},
-	}
-	buf, err := msg.Pack()
-	if err != nil {
-		panic(err)
-	}
-	return buf
-}
-
-func dnsTruncatedMessage(id uint16, q dnsmessage.Question) []byte {
-	msg := dnsmessage.Message{
-		Header: dnsmessage.Header{
-			ID:            id,
-			Response:      true,
-			Authoritative: true,
-			Truncated:     true,
-		},
-		Questions: []dnsmessage.Question{q},
-	}
-	buf, err := msg.Pack()
-	if err != nil {
-		panic(err)
-	}
-	return buf
 }

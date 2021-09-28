@@ -418,7 +418,7 @@ func (r *MemResolver) lookupTXT(ctx context.Context, name string) ([]string, err
 func (r *MemResolver) Dial(ctx context.Context, network, address string) (net.Conn, error) {
 	if strings.Contains(network, "tcp") {
 		h := hairpin.HairpinDialer{
-			PacketHandler: r.dnsStreamRoundTrip,
+			Handler: r.dnsStreamRoundTrip,
 		}
 		return h.Dial(ctx, network, address)
 	}
